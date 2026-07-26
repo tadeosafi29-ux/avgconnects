@@ -1,6 +1,19 @@
 import { NextResponse } from "next/server";
-import featuredData from "@/data/featured.json";
+
 
 export async function GET() {
-  return NextResponse.json(featuredData);
+
+
+  const featured = [
+    {
+      title: "AVG Connects",
+      description:
+        "Productos seleccionados con envío rápido."
+    }
+  ];
+
+
+
+  return NextResponse.json(featured);
+
 }

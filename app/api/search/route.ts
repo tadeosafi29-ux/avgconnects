@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getDb } from "@/lib/mongo";
+import clientPromise from "@/lib/mongo";
 
 interface ProductSearchResult {
   _id: string;
@@ -18,24 +18,21 @@ export async function GET(req: NextRequest) {
       return NextResponse.json([]);
     }
 
-    const db = await getDb();
+    const client = await clientPromise;
+
+    const dbName = process.env.MONGODB_DB || process.env.MONGODB_DB_NAME || "AVGCONNECTS";
+    const db = client.db(dbName);
 
     const products = await db
       .collection("products")
       .find({
+        active: { $ne: false },
         $or: [
-          {
-            name: {
-              $regex: query,
-              $options: "i",
-            },
-          },
-          {
-            title: {
-              $regex: query,
-              $options: "i",
-            },
-          },
+          { name: { $regex: query, $options: "i" } },
+          { title: { $regex: query, $options: "i" } },
+          { description: { $regex: query, $options: "i" } },
+          { category: { $regex: query, $options: "i" } },
+          { sku: { $regex: query, $options: "i" } },
         ],
       })
       .limit(10)
@@ -48,7 +45,7 @@ export async function GET(req: NextRequest) {
       image:
         product.image ??
         product.images?.[0] ??
-        "/placeholder-product.png",
+        undefined,
     }));
 
     return NextResponse.json(results);
