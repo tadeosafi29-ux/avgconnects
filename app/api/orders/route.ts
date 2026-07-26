@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { getDb } from "@/lib/mongo";
 import type { OrderDocument } from "@/types/ecommerce";
 
@@ -27,6 +27,11 @@ export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
     const body = await request.json();
+
+    if (!Array.isArray(body.items) || body.items.length === 0) {
+      return NextResponse.json({ success: false, message: "El pedido no tiene items" }, { status: 400 });
+    }
+
     const db = await getDb();
 
     const orderNumber = `AVG-${Date.now()}`;

@@ -5,6 +5,10 @@ export async function POST(request: Request) {
     const body = await request.json();
     const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
 
+    if (!Array.isArray(body.items) || body.items.length === 0) {
+      return NextResponse.json({ success: false, message: "No hay items para pagar" }, { status: 400 });
+    }
+
     if (!accessToken) {
       return NextResponse.json({ success: true, initPoint: null, message: "Mercado Pago no configurado; el pedido quedó registrado para revisión manual." }, { status: 200 });
     }

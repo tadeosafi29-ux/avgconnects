@@ -2,9 +2,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
+interface CheckoutItem {
+  name: string;
+  price: number;
+  image?: string;
+  quantity?: number;
+}
+
 export async function POST(req: NextRequest) {
   try {
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      return NextResponse.json({ error: 'Stripe no está configurado' }, { status: 503 });
+    }
+
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
       apiVersion: '2025-11-17.clover' as Stripe.LatestApiVersion,
     });
 
@@ -14,7 +25,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No hay items para comprar' }, { status: 400 });
     }
 
-    const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = items.map((item: any) => ({
+    const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = items.map((item: CheckoutItem) => ({
       price_data: {
         currency: 'usd', // ajusta según tu tienda
         product_data: {
@@ -23,7 +34,7 @@ export async function POST(req: NextRequest) {
         },
         unit_amount: Math.round(item.price * 100), // Stripe usa centavos
       },
-      quantity: 1,
+      quantity: item.quantity ?? 1,
     }));
 
     const session = await stripe.checkout.sessions.create({

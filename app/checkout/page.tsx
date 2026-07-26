@@ -64,6 +64,12 @@ export default function CheckoutPage() {
       });
 
       const orderData = await orderResponse.json();
+
+      if (!orderResponse.ok || !orderData.success) {
+        setMessage(orderData.message ?? "No se pudo registrar el pedido");
+        return;
+      }
+
       const preferenceResponse = await fetch("/api/mercadopago", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

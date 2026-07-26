@@ -1,12 +1,38 @@
 import ProductGrid from "./components/ProductGrid";
 import BenefitsSection from "./components/BenefitsSection";
 import Link from "next/link";
+import { getDb } from "@/lib/mongo";
+import type { Product } from "./components/ProductCard";
 
-async function getProducts() {
-  const res = await fetch("/api/products", { cache: "no-store" });
-  const data = await res.json();
-  return data.products || [];
+export const dynamic = "force-dynamic";
 
+async function getProducts(): Promise<Product[]> {
+  try {
+    const db = await getDb();
+    const products = await db
+      .collection("products")
+      .find({ active: { $ne: false }, stock: { $ne: false } })
+      .sort({ featured: -1, createdAt: -1 })
+      .limit(100)
+      .toArray();
+
+    return products.map((product) => ({
+      _id: String(product._id),
+      name: typeof product.name === "string" ? product.name : undefined,
+      title: typeof product.title === "string" ? product.title : undefined,
+      description: typeof product.description === "string" ? product.description : undefined,
+      price: typeof product.price === "number" ? product.price : 0,
+      comparePrice: typeof product.comparePrice === "number" ? product.comparePrice : undefined,
+      image: typeof product.image === "string" ? product.image : undefined,
+      images: Array.isArray(product.images) ? product.images.filter((image): image is string => typeof image === "string") : undefined,
+      category: typeof product.category === "string" ? product.category : undefined,
+      shippingDays: typeof product.shippingDays === "string" ? product.shippingDays : undefined,
+      stock: typeof product.stock === "boolean" ? product.stock : true,
+    }));
+  } catch (error) {
+    console.error("ERROR HOME PRODUCTS:", error);
+    return [];
+  }
 }
 
 export default async function HomePage() {

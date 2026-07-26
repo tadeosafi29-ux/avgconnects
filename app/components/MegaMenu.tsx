@@ -66,7 +66,7 @@ const MegaMenu = React.forwardRef<HTMLDivElement, MegaMenuProps>(
               <div key={cat._id ?? cat.slug}>
 
                 <Link
-                  href={`/categoria/${cat.slug}`}
+                  href={`/category/${cat.slug}`}
                   className="
                     font-semibold
                     text-neutral-900
@@ -85,7 +85,7 @@ const MegaMenu = React.forwardRef<HTMLDivElement, MegaMenuProps>(
                     {cat.children.map((child)=>(
                       <Link
                         key={child.slug}
-                        href={`/categoria/${cat.slug}/${child.slug}`}
+                        href={`/category/${child.slug}`}
                         className="
                           text-sm
                           text-neutral-600

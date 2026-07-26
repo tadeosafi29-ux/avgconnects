@@ -1,5 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ObjectId } from "mongodb";
+import { getDb } from "@/lib/mongo";
+import AddToCartButton from "@/app/components/AddToCartButton";
+
+export const dynamic = "force-dynamic";
 
 interface Product {
   _id: string;
@@ -12,31 +17,44 @@ interface Product {
   shippingDays?: string;
 }
 
-async function getProduct(id: string) {
-  const res = await fetch(
-    `/api/products/${id}`,
-    {
-      cache: "no-store",
-    }
-  );
-
-  if (!res.ok) {
+async function getProduct(id: string): Promise<Product | null> {
+  if (!ObjectId.isValid(id)) {
     return null;
   }
 
-  const data = await res.json();
+  try {
+    const db = await getDb();
+    const product = await db.collection("products").findOne({ _id: new ObjectId(id) });
 
-  return data.product;
+    if (!product) {
+      return null;
+    }
+
+    return {
+      _id: String(product._id),
+      name: typeof product.title === "string" ? product.title : typeof product.name === "string" ? product.name : "Producto",
+      description: typeof product.description === "string" ? product.description : undefined,
+      price: typeof product.price === "number" ? product.price : 0,
+      comparePrice: typeof product.comparePrice === "number" ? product.comparePrice : undefined,
+      image: typeof product.image === "string" ? product.image : "/placeholder-product.png",
+      category: typeof product.category === "string" ? product.category : undefined,
+      shippingDays: typeof product.shippingDays === "string" ? product.shippingDays : "24-48 hs",
+    };
+  } catch (error) {
+    console.error("ERROR PRODUCT PAGE:", error);
+    return null;
+  }
 }
 
 export default async function ProductPage({
   params,
 }: {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }) {
-  const product = await getProduct(params.id);
+  const { id } = await params;
+  const product = await getProduct(id);
 
   if (!product) {
     return (
@@ -92,7 +110,13 @@ export default async function ProductPage({
             🚚 Envío: {product.shippingDays}
           </p>
 
-          <button
+          <AddToCartButton
+            item={{
+              _id: product._id,
+              name: product.name,
+              price: product.price,
+              image: product.image,
+            }}
             className="
               mt-8
               bg-black
@@ -101,9 +125,7 @@ export default async function ProductPage({
               py-4
               rounded-xl
             "
-          >
-            Agregar al carrito
-          </button>
+          />
 
         </div>
 

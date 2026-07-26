@@ -63,7 +63,7 @@ export default function Header() {
             const mapped: Product[] = arr.map((p: any) => ({
               id: p._id ?? p.id,
               title: p.title ?? p.name ?? '',
-              href: p.slug ? `/producto/${p.slug}` : `/producto/${p._id ?? p.id}`,
+              href: `/product/${p._id ?? p.id}`,
               image: p.image ?? p.images?.[0] ?? '',
               price:
                 typeof p.price === 'number'
