@@ -52,7 +52,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: "La orden no existe" }, { status: 404 });
     }
 
-    if (!authorizeOrderAccess(order, body.customer?.email)) {
+    if (!(await authorizeOrderAccess(order, body.customer?.email))) {
       return NextResponse.json({ success: false, message: "No autorizado" }, { status: 401 });
     }
 

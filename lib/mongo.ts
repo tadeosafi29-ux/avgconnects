@@ -1,35 +1,35 @@
-import { MongoClient, MongoClientOptions } from "mongodb";
+import { MongoClient, MongoClientOptions, Db } from "mongodb";
 
-if (!process.env.MONGO_URI) {
-  throw new Error('Falta la variable de entorno "MONGO_URI" en .env.local');
-}
-
-const uri = process.env.MONGO_URI;
-const dbName = process.env.MONGODB_DB || "AVGCONNECTS";
 const options: MongoClientOptions = {};
-
-let client: MongoClient;
-let clientPromise: Promise<MongoClient>;
 
 declare global {
   // eslint-disable-next-line no-var
   var _mongoClientPromise: Promise<MongoClient> | undefined;
 }
 
-if (process.env.NODE_ENV === "development") {
-  if (!global._mongoClientPromise) {
-    client = new MongoClient(uri, options);
-    global._mongoClientPromise = client.connect();
+function getUri() {
+  const uri = process.env.MONGO_URI ?? process.env.MONGODB_URI;
+
+  if (!uri) {
+    throw new Error('Falta la variable de entorno "MONGO_URI"');
   }
-  clientPromise = global._mongoClientPromise;
-} else {
-  client = new MongoClient(uri, options);
-  clientPromise = client.connect();
+
+  return uri;
 }
 
-export default clientPromise;
+export function getDbName() {
+  return process.env.MONGODB_DB || "AVGCONNECTS";
+}
 
-export async function getDb() {
-  const client = await clientPromise;
-  return client.db(dbName);
+export function getClientPromise(): Promise<MongoClient> {
+  if (!global._mongoClientPromise) {
+    global._mongoClientPromise = new MongoClient(getUri(), options).connect();
+  }
+
+  return global._mongoClientPromise;
+}
+
+export async function getDb(): Promise<Db> {
+  const client = await getClientPromise();
+  return client.db(getDbName());
 }

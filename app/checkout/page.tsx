@@ -3,7 +3,7 @@
 import { FormEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useCart } from "@/context/CartContext";
+import { useCart } from "@/app/context/CartContext";
 
 const initialValues = {
   firstName: "",

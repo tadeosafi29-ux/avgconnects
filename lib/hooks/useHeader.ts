@@ -67,7 +67,7 @@ export function useHeaderData() {
 
     async function loadFeatured() {
       try {
-        const res = await fetch('/api/products/featured');
+        const res = await fetch('/api/products?featured=true');
 
         if (!res.ok) {
           throw new Error("Error loading featured products");

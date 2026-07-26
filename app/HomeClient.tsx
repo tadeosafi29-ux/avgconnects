@@ -15,7 +15,7 @@ import {
   Zap,
   type LucideIcon,
 } from 'lucide-react';
-import { useCart } from '@/context/CartContext';
+import { useCart } from '@/app/context/CartContext';
 
 export type ProductDTO = {
   _id: string;

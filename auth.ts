@@ -18,10 +18,14 @@ const providers: any[] = [
       }
 
       const db = await getDb();
-      const user = await db.collection("users").findOne({ email: credentials.email });
+      const user = await db.collection("users").findOne({ email: credentials.email.trim().toLowerCase() });
 
       if (!user) {
         throw new Error("Usuario no encontrado");
+      }
+
+      if (typeof user.password !== "string") {
+        throw new Error("Esta cuenta se creó con Google. Inicia sesión con Google.");
       }
 
       const isValid = await bcrypt.compare(credentials.password, user.password);

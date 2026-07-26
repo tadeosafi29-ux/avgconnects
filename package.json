@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "seed": "tsx scripts/seed-products.ts"
+    "seed": "tsx --env-file=.env.local app/scripts/seed-products.ts"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

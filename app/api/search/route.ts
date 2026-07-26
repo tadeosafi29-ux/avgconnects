@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import clientPromise from "@/lib/mongo";
+import { getDb } from "@/lib/mongo";
 
 interface ProductSearchResult {
   _id: string;
@@ -18,10 +18,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json([]);
     }
 
-    const client = await clientPromise;
-
-    const dbName = process.env.MONGODB_DB || process.env.MONGODB_DB_NAME || "AVGCONNECTS";
-    const db = client.db(dbName);
+    const db = await getDb();
 
     const products = await db
       .collection("products")
