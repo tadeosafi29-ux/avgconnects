@@ -7,6 +7,8 @@ import Link from "next/link";
 import { getDb } from "@/lib/mongo";
 import type { Product } from "./components/ProductCard";
 
+export const dynamic = "force-dynamic";
+
 async function getProducts(): Promise<Product[]> {
   try {
     const db = await getDb();

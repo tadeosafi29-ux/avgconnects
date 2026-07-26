@@ -37,10 +37,6 @@ export async function POST(request: Request) {
     const body: MercadoPagoRequest = await request.json();
     const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
 
-    if (!Array.isArray(body.items) || body.items.length === 0) {
-      return NextResponse.json({ success: false, message: "No hay items para pagar" }, { status: 400 });
-    }
-
     if (!accessToken) {
       return NextResponse.json({ success: false, message: "Mercado Pago no configurado" }, { status: 500 });
     }
@@ -56,7 +52,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: "La orden no existe" }, { status: 404 });
     }
 
-    if (!authorizeOrderAccess(order, body.customer?.email)) {
+    if (!(await authorizeOrderAccess(order, body.customer?.email))) {
       return NextResponse.json({ success: false, message: "No autorizado" }, { status: 401 });
     }
 

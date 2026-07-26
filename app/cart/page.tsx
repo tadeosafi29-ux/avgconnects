@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useCart } from "@/context/CartContext";
+import { useCart } from "@/app/context/CartContext";
 import CartSummary from "@/components/CartSummary";
 
 export default function CartPage() {
